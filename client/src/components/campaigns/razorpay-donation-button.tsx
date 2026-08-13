@@ -24,6 +24,7 @@ export type DonationSnapshot = {
   }>;
   topDonors: Array<{
     name: string;
+    profileImageUrl: string | null;
     amount: number;
   }>;
 };

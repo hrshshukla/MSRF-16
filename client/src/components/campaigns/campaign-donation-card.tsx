@@ -5,6 +5,7 @@ import { UserAvatar } from "@/components/user-avatar";
 
 export type CampaignCardDonor = {
   name: string;
+  profileImageUrl?: string | null;
   amount: number;
 };
 
@@ -145,6 +146,7 @@ export function CampaignDonationCard({ campaign }: { campaign: CampaignDonationC
                   <div className="flex min-w-0 items-center gap-2.5">
                     <UserAvatar
                       name={donor.name}
+                      imageUrl={donor.profileImageUrl}
                       className="h-8 w-8 border border-background shadow-sm"
                       fallbackClassName="bg-primary text-[10px] font-extrabold text-primary-foreground"
                     />

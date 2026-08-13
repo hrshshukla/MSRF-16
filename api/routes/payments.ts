@@ -310,12 +310,13 @@ router.get("/payments/campaigns/:id/donors", async (req, res): Promise<void> => 
   const topDonors = await db
     .select({
       name: donorName,
+      profileImageUrl: usersTable.profileImageUrl,
       amount: sql<number>`sum(${donationsTable.amountInr})`,
     })
     .from(donationsTable)
     .leftJoin(usersTable, eq(usersTable.id, donationsTable.userId))
     .where(eq(donationsTable.campaignId, campaignId))
-    .groupBy(donorName)
+    .groupBy(donorName, usersTable.profileImageUrl)
     .orderBy(desc(sql`sum(${donationsTable.amountInr})`))
     .limit(3);
 
@@ -327,6 +328,7 @@ router.get("/payments/campaigns/:id/donors", async (req, res): Promise<void> => 
     })),
     topDonors: topDonors.map((donor) => ({
       name: donor.name,
+      profileImageUrl: donor.profileImageUrl,
       amount: Number(donor.amount),
     })),
   });

@@ -370,6 +370,7 @@
   align-items: center;
   display: inline-flex;
   gap: 0.55rem;
+  max-width: 100%;
   padding: 0.25rem 0;
   overflow: hidden;
   position: relative;
@@ -399,7 +400,7 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgb(255 255 255 / 0.9),
+    hsl(var(--primary) / 0.7),
     transparent
   );
   content: "";
@@ -415,13 +416,32 @@
 
 .developer-credit-label,
 .developer-credit-name {
-  color: #000;
   font-family: var(--font-sans);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.12em;
   line-height: 1;
   text-transform: uppercase;
+}
+
+.developer-credit-label {
+  color: hsl(var(--muted-foreground));
+}
+
+.developer-credit-name {
+  color: hsl(var(--foreground));
+}
+
+@media (max-width: 380px) {
+  .developer-credit {
+    gap: 0.4rem;
+  }
+
+  .developer-credit-label,
+  .developer-credit-name {
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+  }
 }
 
 @keyframes developer-credit-shine {
