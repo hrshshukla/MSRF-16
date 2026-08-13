@@ -189,6 +189,7 @@ function CampaignDetailContent({
                           </span>
                           <UserAvatar
                             name={donor.name}
+                            imageUrl={donor.profileImageUrl}
                             className="h-8 w-8 border border-background shadow-sm"
                             fallbackClassName="bg-primary text-[10px] font-extrabold text-primary-foreground"
                           />

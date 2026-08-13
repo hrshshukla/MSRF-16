@@ -29,6 +29,7 @@ export function SevaDonationDetail() {
     donors: donation?.donors.map((donor, index) => ({
       id: -(index + 1),
       name: donor.name,
+      profileImageUrl: null,
       amount: donor.amount,
       donatedAt: "",
     })) ?? [],
@@ -158,7 +159,7 @@ export function SevaDonationDetail() {
                     </span>
                     <UserAvatar
                       name={currentUserDonor.name}
-                      imageUrl={user?.profileImageUrl}
+                       imageUrl={currentUserDonor.profileImageUrl ?? user?.profileImageUrl}
                       className="h-8 w-8 border border-background shadow-sm"
                       fallbackClassName="bg-primary text-[10px] font-extrabold text-primary-foreground"
                     />
@@ -207,6 +208,7 @@ export function SevaDonationDetail() {
                       )}
                       <UserAvatar
                         name={donor.name}
+                        imageUrl={donor.profileImageUrl}
                         className="h-8 w-8 border border-background shadow-sm"
                         fallbackClassName="bg-primary text-[10px] font-extrabold text-primary-foreground"
                       />

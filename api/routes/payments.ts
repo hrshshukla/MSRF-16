@@ -297,6 +297,7 @@ router.get("/payments/campaigns/:id/donors", async (req, res): Promise<void> => 
     .select({
       id: donationsTable.id,
       name: sql<string>`coalesce(${donationsTable.donorName}, ${usersTable.name}, 'Anonymous donor')`,
+      profileImageUrl: usersTable.profileImageUrl,
       amount: donationsTable.amountInr,
       donatedAt: donationsTable.donatedAt,
     })

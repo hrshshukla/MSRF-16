@@ -17,6 +17,7 @@ export type DonationSnapshot = {
   donors: Array<{
     id: number;
     name: string;
+    profileImageUrl: string | null;
     amount: number;
     donatedAt: string;
   }>;
@@ -48,7 +49,7 @@ type RazorpayOptions = {
   name: string;
   description: string;
   order_id: string;
-  prefill: { name: string; email: string };
+  prefill: { name: string; email: string; contact: string };
   theme: { color: string };
   modal: { ondismiss: () => void };
   handler: (response: RazorpayPaymentResponse) => void;
@@ -137,6 +138,7 @@ export function RazorpayDonationButton({
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
+  const [phone, setPhone] = useState(user?.phone ?? "");
   const [amount, setAmount] = useState("500");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -146,9 +148,10 @@ export function RazorpayDonationButton({
     if (!isOpen) return;
     setName(user?.name ?? "");
     setEmail(user?.email ?? "");
+    setPhone(user?.phone ?? "");
     setError("");
     setSuccess(false);
-  }, [isOpen, user?.email, user?.name]);
+  }, [isOpen, user?.email, user?.name, user?.phone]);
 
   const close = () => {
     if (!isSubmitting) setIsOpen(false);
@@ -189,7 +192,7 @@ export function RazorpayDonationButton({
         name: "Mahakal Sanatan Raksha Foundation",
         description: `Donation to ${campaignTitle}`,
         order_id: order.orderId,
-        prefill: { name: name.trim(), email: email.trim() },
+        prefill: { name: name.trim(), email: email.trim(), contact: phone.trim() },
         theme: { color: "#b45309" },
         modal: {
           ondismiss: () => setIsSubmitting(false),
@@ -243,11 +246,16 @@ export function RazorpayDonationButton({
 
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-6"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 px-0 py-0 sm:items-center sm:px-4 sm:py-6"
           role="presentation"
           onMouseDown={(event) => event.target === event.currentTarget && close()}
         >
-          <div role="dialog" aria-modal="true" aria-labelledby="donation-dialog-title" className="w-full max-w-md rounded-3xl bg-card p-6 shadow-2xl md:p-8">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="donation-dialog-title"
+            className="max-h-[100dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-card p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl sm:rounded-3xl sm:p-6 md:p-8"
+          >
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Secure donation</p>
@@ -276,8 +284,12 @@ export function RazorpayDonationButton({
                   <Input id="donor-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} maxLength={240} autoComplete="email" />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="donor-phone">Phone number <span className="font-normal text-muted-foreground">(optional)</span></Label>
+                  <Input id="donor-phone" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} maxLength={30} autoComplete="tel" />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="donation-amount">Donation amount (INR)</Label>
-                  <Input id="donation-amount" type="number" min="1" step="1" value={amount} onChange={(event) => setAmount(event.target.value)} required />
+                  <Input id="donation-amount" type="number" inputMode="numeric" min="1" step="1" value={amount} onChange={(event) => setAmount(event.target.value)} required autoFocus />
                   <p className="text-xs text-muted-foreground">You can donate any whole amount.</p>
                 </div>
                 {error && <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
