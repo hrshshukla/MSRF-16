@@ -306,11 +306,28 @@ router.get("/payments/campaigns/:id/donors", async (req, res): Promise<void> => 
     .where(eq(donationsTable.campaignId, campaignId))
     .orderBy(desc(donationsTable.donatedAt));
 
+  const donorName = sql<string>`coalesce(${donationsTable.donorName}, ${usersTable.name}, 'Anonymous donor')`;
+  const topDonors = await db
+    .select({
+      name: donorName,
+      amount: sql<number>`sum(${donationsTable.amountInr})`,
+    })
+    .from(donationsTable)
+    .leftJoin(usersTable, eq(usersTable.id, donationsTable.userId))
+    .where(eq(donationsTable.campaignId, campaignId))
+    .groupBy(donorName)
+    .orderBy(desc(sql`sum(${donationsTable.amountInr})`))
+    .limit(3);
+
   res.json({
     campaign,
     donors: donors.map((donor) => ({
       ...donor,
       donatedAt: donor.donatedAt.toISOString(),
+    })),
+    topDonors: topDonors.map((donor) => ({
+      name: donor.name,
+      amount: Number(donor.amount),
     })),
   });
 });

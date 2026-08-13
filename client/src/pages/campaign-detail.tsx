@@ -69,6 +69,7 @@ function CampaignDetailContent({
       raisedAmountInr: campaign.raisedAmountInr,
     },
     donors: [],
+    topDonors: [],
   };
   const { snapshot, refresh: refreshDonationSnapshot } = useCampaignDonationSnapshot(
     campaign.id,

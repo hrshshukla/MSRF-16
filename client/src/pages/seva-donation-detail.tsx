@@ -33,6 +33,7 @@ export function SevaDonationDetail() {
       amount: donor.amount,
       donatedAt: "",
     })) ?? [],
+    topDonors: [],
   };
   const { snapshot, refresh: refreshDonationSnapshot } = useCampaignDonationSnapshot(
     apiCampaign?.id ?? null,

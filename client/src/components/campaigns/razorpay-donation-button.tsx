@@ -22,6 +22,10 @@ export type DonationSnapshot = {
     amount: number;
     donatedAt: string;
   }>;
+  topDonors: Array<{
+    name: string;
+    amount: number;
+  }>;
 };
 
 type RazorpayOrderResponse = {
