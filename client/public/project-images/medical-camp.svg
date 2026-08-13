@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Medical Camp</title>
+  <desc id="desc">Warm illustration placeholder for Medical Camp campaign.</desc>
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b2d8d1"/><stop offset="1" stop-color="#4b7185"/></linearGradient></defs>
+  <rect width="1200" height="800" fill="url(#g)"/>
+  <circle cx="980" cy="160" r="108" fill="#eaf7e7" opacity=".72"/>
+  <path d="M0 650c220-105 420-41 610-112 240-90 390-56 590-168v430H0z" fill="#375a6d" opacity=".78"/>
+  <rect x="460" y="290" width="280" height="275" rx="24" fill="#fff8e8"/>
+  <path d="M515 390h170v65H515zM568 337h64v171h-64z" fill="#cf605b"/>
+  <path d="M370 563h460" stroke="#fff8e8" stroke-width="28" stroke-linecap="round"/>
+  <text x="70" y="115" fill="#fff8e8" font-family="Georgia,serif" font-size="64" font-weight="700">Medical Camp</text>
+</svg>

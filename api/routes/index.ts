@@ -1,0 +1,40 @@
+import { Router, type IRouter } from "../http";
+import healthRouter from "./health";
+import statsRouter from "./stats";
+import campaignsRouter from "./campaigns";
+import eventsRouter from "./events";
+import projectsRouter from "./projects";
+import teamRouter from "./team";
+import galleryRouter from "./gallery";
+import blogRouter from "./blog";
+import contactRouter from "./contact";
+import testimonialsRouter from "./testimonials";
+import orgUnitsRouter from "./org-units";
+import feedRouter from "./feed";
+import mediaRouter from "./media";
+import authRouter from "./auth";
+import accountRouter from "./account";
+import volunteerApplicationsRouter from "./volunteer-applications";
+import memberManagementRouter from "./member-management";
+
+const router: IRouter = Router();
+
+router.use(authRouter);
+router.use(accountRouter);
+router.use(volunteerApplicationsRouter);
+router.use(memberManagementRouter);
+router.use(healthRouter);
+router.use(statsRouter);
+router.use(campaignsRouter);
+router.use(eventsRouter);
+router.use(projectsRouter);
+router.use(teamRouter);
+router.use(galleryRouter);
+router.use(blogRouter);
+router.use(contactRouter);
+router.use(testimonialsRouter);
+router.use(orgUnitsRouter);
+router.use(feedRouter);
+  router.use(mediaRouter);
+
+export default router;

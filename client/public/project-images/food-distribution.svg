@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Food Distribution</title>
+  <desc id="desc">Warm illustration placeholder for Food Distribution campaign.</desc>
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f2b06f"/><stop offset="1" stop-color="#9c4a40"/></linearGradient></defs>
+  <rect width="1200" height="800" fill="url(#g)"/>
+  <circle cx="980" cy="150" r="100" fill="#ffe2a7" opacity=".7"/>
+  <path d="M0 650c220-90 390-50 620-135 200-74 385-53 580-155v440H0z" fill="#6f3941" opacity=".72"/>
+  <ellipse cx="600" cy="482" rx="250" ry="78" fill="#fff5da"/>
+  <path d="M395 470c10-112 100-170 205-170s195 58 205 170" fill="#fff5da" stroke="#7b3e3a" stroke-width="14"/>
+  <path d="M444 414c100-70 210-70 312 0" fill="none" stroke="#e59a54" stroke-width="24"/>
+  <path d="M520 500c18-62 54-96 80-96s62 34 80 96" fill="#e9a354"/>
+  <text x="70" y="115" fill="#fff8e8" font-family="Georgia,serif" font-size="62" font-weight="700">Food Distribution</text>
+</svg>

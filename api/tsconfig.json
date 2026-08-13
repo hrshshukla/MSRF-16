@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"],
+    "tsBuildInfoFile": "../.cache/api.tsbuildinfo"
+  },
+  "include": ["./**/*.ts"],
+  "exclude": ["./db"],
+  "references": [
+    {
+      "path": "./db"
+    }
+  ]
+}

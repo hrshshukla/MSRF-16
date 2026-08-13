@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Dharmik Siksha</title>
+  <desc id="desc">Warm illustration placeholder for Dharmik Siksha campaign.</desc>
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f2c56b"/><stop offset="1" stop-color="#8e3d58"/></linearGradient></defs>
+  <rect width="1200" height="800" fill="url(#g)"/>
+  <circle cx="910" cy="185" r="120" fill="#ffe7a5" opacity=".6"/>
+  <path d="M0 660c210-100 370-80 590-135 250-63 380-95 610-185v460H0z" fill="#5e304e" opacity=".72"/>
+  <path d="M355 552V345l245-105 245 105v207" fill="#fff1cc" opacity=".96"/>
+  <path d="M310 355l290-145 290 145-290 55z" fill="#ffe2a1"/>
+  <path d="M405 345h390v25H405zm35 54h320v28H440z" fill="#9d4f56"/>
+  <path d="M500 550V450h100v100zm135 0V450h100v100z" fill="#9d4f56"/>
+  <text x="70" y="115" fill="#fff8e8" font-family="Georgia,serif" font-size="60" font-weight="700">Dharmik Siksha</text>
+</svg>
