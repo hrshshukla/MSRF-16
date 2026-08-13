@@ -4,7 +4,7 @@ import {
   ArrowRight,
   CalendarCheck,
   IndianRupee,
-  Loader2,
+  Loader2, 
   MessageSquare,
   ReceiptIndianRupee,
   Sparkles,
