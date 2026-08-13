@@ -1,28 +1,31 @@
-import { useGetCampaign } from "@/lib/api-client";
+import { useGetCampaign, type Campaign } from "@/lib/api-client";
 import { useLayoutEffect } from "react";
 import { Link, Redirect, useParams } from "wouter";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { formatINR } from "@/components/campaigns/campaign-donation-card";
-import { Heart, Calendar, MapPin, ArrowLeft, Share2 } from "lucide-react";
+import { formatCompactINR, formatINR } from "@/components/campaigns/campaign-donation-card";
+import { Heart, Calendar, MapPin, ArrowLeft, Share2, Trophy } from "lucide-react";
 import { format } from "date-fns";
 import { sevaDonations } from "@/lib/seva-donations";
 import { useQueryClient } from "@tanstack/react-query";
-import { RazorpayDonationButton } from "@/components/campaigns/razorpay-donation-button";
+import {
+  RazorpayDonationButton,
+  useCampaignDonationSnapshot,
+  type DonationSnapshot,
+} from "@/components/campaigns/razorpay-donation-button";
 import { useAuth } from "@/lib/auth-context";
+import { UserAvatar } from "@/components/user-avatar";
 
 export function CampaignDetail() {
   const params = useParams();
   const id = Number(params.id);
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
 
   useLayoutEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [id]);
   
   const { data: campaign, isLoading, isError } = useGetCampaign(id, { 
-    query: { enabled: !!id, queryKey: ["/api/campaigns", id] } 
+    query: { enabled: Number.isInteger(id) && id > 0, queryKey: [`/api/campaigns/${id}`] },
   });
 
   if (isLoading) {
@@ -45,7 +48,42 @@ export function CampaignDetail() {
     return <Redirect to={`/seva-campaigns/${matchingDonation.id}`} />;
   }
 
-  const progress = Math.min(100, Math.round((campaign.raisedAmountInr / campaign.goalAmountInr) * 100));
+  return <CampaignDetailContent campaign={campaign} />;
+}
+
+function CampaignDetailContent({
+  campaign,
+}: {
+  campaign: Campaign;
+}) {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const fallbackSnapshot: DonationSnapshot = {
+    campaign: {
+      id: campaign.id,
+      title: campaign.title,
+      goalAmountInr: campaign.goalAmountInr,
+      raisedAmountInr: campaign.raisedAmountInr,
+    },
+    donors: [],
+  };
+  const { snapshot, refresh: refreshDonationSnapshot } = useCampaignDonationSnapshot(
+    campaign.id,
+    fallbackSnapshot,
+  );
+  const progress = snapshot.campaign.goalAmountInr > 0
+    ? Math.min(100, Math.round((snapshot.campaign.raisedAmountInr / snapshot.campaign.goalAmountInr) * 100))
+    : 0;
+
+  const refreshCampaignData = () => {
+    void refreshDonationSnapshot();
+    void queryClient.invalidateQueries({
+      predicate: ({ queryKey }) =>
+        typeof queryKey[0] === "string" && queryKey[0].startsWith("/api/campaigns"),
+    });
+  };
+
+  const totalDonors = snapshot.donors.length;
 
   return (
     <div className="w-full pb-24">
@@ -87,8 +125,8 @@ export function CampaignDetail() {
             <div className="mb-8">
               <div className="flex justify-between items-end mb-3">
                 <div>
-                  <p className="text-3xl font-bold text-foreground">{formatINR(campaign.raisedAmountInr)}</p>
-                  <p className="text-sm text-muted-foreground font-medium mt-1">raised of {formatINR(campaign.goalAmountInr)} goal</p>
+                   <p className="text-3xl font-bold text-foreground">{formatINR(snapshot.campaign.raisedAmountInr)}</p>
+                   <p className="text-sm text-muted-foreground font-medium mt-1">raised of {formatINR(snapshot.campaign.goalAmountInr)} goal</p>
                 </div>
                 <span className="text-lg font-bold text-primary">{progress}%</span>
               </div>
@@ -101,9 +139,7 @@ export function CampaignDetail() {
                  campaignTitle={campaign.title}
                  user={user}
                  className="w-full h-14 rounded-xl text-lg font-bold bg-primary hover:bg-primary/90 text-white shadow-md shadow-primary/20"
-                 onDonationComplete={() => {
-                   void queryClient.invalidateQueries({ queryKey: ["/api/campaigns", id] });
-                 }}
+                  onDonationComplete={refreshCampaignData}
                />
               <Button size="lg" variant="outline" className="w-full h-14 rounded-xl font-medium gap-2">
                 <Share2 size={18} /> Share Campaign
@@ -127,6 +163,46 @@ export function CampaignDetail() {
                   <span className="font-medium text-foreground">Ends:</span> {format(new Date(campaign.endDate), "MMM d, yyyy")}
                 </div>
               )}
+            </div>
+
+            <div className="rounded-3xl border bg-card p-6 shadow-sm md:p-8">
+              <div className="mb-5 flex items-start justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Trophy className="h-4 w-4 text-secondary" />
+                    <p className="text-xs font-bold uppercase tracking-[0.15em] text-primary">All donors</p>
+                  </div>
+                  <h3 className="mt-2 font-serif text-2xl font-bold">Every contribution matters</h3>
+                </div>
+                <span className="shrink-0 text-sm font-semibold text-muted-foreground">
+                  {totalDonors} {totalDonors === 1 ? "contributor" : "contributors"}
+                </span>
+              </div>
+
+              <div className="max-h-[32rem] overflow-y-auto rounded-2xl border border-border/70 bg-background">
+                {snapshot.donors.length > 0 ? (
+                  <div className="divide-y divide-border/70">
+                    {snapshot.donors.map((donor, index) => (
+                      <div key={`${donor.id}-${donor.name}`} className="flex items-center justify-between gap-3 px-3 py-4">
+                        <div className="flex min-w-0 items-center gap-2.5">
+                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                            {index + 1}
+                          </span>
+                          <UserAvatar
+                            name={donor.name}
+                            className="h-8 w-8 border border-background shadow-sm"
+                            fallbackClassName="bg-primary text-[10px] font-extrabold text-primary-foreground"
+                          />
+                          <span className="min-w-0 truncate text-sm font-semibold">{donor.name}</span>
+                        </div>
+                        <span className="shrink-0 text-sm font-extrabold text-primary">{formatCompactINR(donor.amount)}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="px-4 py-8 text-center text-sm text-muted-foreground">Be the first donor to support this campaign.</p>
+                )}
+              </div>
             </div>
           </div>
         </div>

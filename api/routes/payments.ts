@@ -207,6 +207,9 @@ router.post(
         .limit(1);
 
       if (existing) {
+        if (existing.campaignId !== campaignId) {
+          throw new HttpError(400, "This payment is linked to a different campaign.");
+        }
         const [campaign] = await tx
           .select({
             id: campaignsTable.id,
