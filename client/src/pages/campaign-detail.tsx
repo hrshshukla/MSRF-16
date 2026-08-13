@@ -7,10 +7,15 @@ import { formatINR } from "@/components/campaigns/campaign-donation-card";
 import { Heart, Calendar, MapPin, ArrowLeft, Share2 } from "lucide-react";
 import { format } from "date-fns";
 import { sevaDonations } from "@/lib/seva-donations";
+import { useQueryClient } from "@tanstack/react-query";
+import { RazorpayDonationButton } from "@/components/campaigns/razorpay-donation-button";
+import { useAuth } from "@/lib/auth-context";
 
 export function CampaignDetail() {
   const params = useParams();
   const id = Number(params.id);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   useLayoutEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -91,9 +96,15 @@ export function CampaignDetail() {
             </div>
             
             <div className="space-y-4 mb-8">
-              <Button size="lg" className="w-full h-14 rounded-xl text-lg font-bold bg-primary hover:bg-primary/90 text-white shadow-md shadow-primary/20">
-                Donate Now
-              </Button>
+               <RazorpayDonationButton
+                 campaignId={campaign.id}
+                 campaignTitle={campaign.title}
+                 user={user}
+                 className="w-full h-14 rounded-xl text-lg font-bold bg-primary hover:bg-primary/90 text-white shadow-md shadow-primary/20"
+                 onDonationComplete={() => {
+                   void queryClient.invalidateQueries({ queryKey: ["/api/campaigns", id] });
+                 }}
+               />
               <Button size="lg" variant="outline" className="w-full h-14 rounded-xl font-medium gap-2">
                 <Share2 size={18} /> Share Campaign
               </Button>

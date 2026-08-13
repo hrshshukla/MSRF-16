@@ -16,6 +16,7 @@ import authRouter from "./auth";
 import accountRouter from "./account";
 import volunteerApplicationsRouter from "./volunteer-applications";
 import memberManagementRouter from "./member-management";
+import paymentsRouter from "./payments";
 
 const router: IRouter = Router();
 
@@ -23,6 +24,7 @@ router.use(authRouter);
 router.use(accountRouter);
 router.use(volunteerApplicationsRouter);
 router.use(memberManagementRouter);
+  router.use(paymentsRouter);
 router.use(healthRouter);
 router.use(statsRouter);
 router.use(campaignsRouter);

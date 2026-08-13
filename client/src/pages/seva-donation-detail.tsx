@@ -5,20 +5,46 @@ import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/user-avatar";
 import { useAuth } from "@/lib/auth-context";
 import { sevaDonations } from "@/lib/seva-donations";
-import { formatCompactINR, formatINR } from "@/components/campaigns/campaign-donation-card";
+import { formatCompactINR } from "@/components/campaigns/campaign-donation-card";
+import { useListCampaigns } from "@/lib/api-client";
+import {
+  RazorpayDonationButton,
+  useCampaignDonationSnapshot,
+  type DonationSnapshot,
+} from "@/components/campaigns/razorpay-donation-button";
 
 export function SevaDonationDetail() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const donation = sevaDonations.find((item) => item.id === id);
+  const { data: apiCampaigns } = useListCampaigns({ limit: 100 });
+  const apiCampaign = apiCampaigns?.find((campaign) => campaign.title === donation?.title);
+  const fallbackSnapshot: DonationSnapshot = {
+    campaign: {
+      id: apiCampaign?.id ?? 0,
+      title: donation?.title ?? "",
+      goalAmountInr: apiCampaign?.goalAmountInr ?? donation?.goal ?? 0,
+      raisedAmountInr: apiCampaign?.raisedAmountInr ?? donation?.raised ?? 0,
+    },
+    donors: donation?.donors.map((donor, index) => ({
+      id: -(index + 1),
+      name: donor.name,
+      amount: donor.amount,
+      donatedAt: "",
+    })) ?? [],
+  };
+  const { snapshot, refresh: refreshDonationSnapshot } = useCampaignDonationSnapshot(
+    apiCampaign?.id ?? null,
+    fallbackSnapshot,
+  );
   const currentUserDonorIndex = user && donation
-    ? donation.donors.findIndex(
+    ? snapshot.donors.findIndex(
         (donor) =>
-          donor.donorEmail?.trim().toLowerCase() === user.email.trim().toLowerCase(),
+          donor.name.trim().toLowerCase() === user.name.trim().toLowerCase(),
       )
     : -1;
   const currentUserDonor =
-    donation && currentUserDonorIndex >= 0 ? donation.donors[currentUserDonorIndex] : null;
+    donation && currentUserDonorIndex >= 0 ? snapshot.donors[currentUserDonorIndex] : null;
   const showCurrentUserSpotlight = currentUserDonor !== null;
 
   useLayoutEffect(() => {
@@ -41,8 +67,10 @@ export function SevaDonationDetail() {
     );
   }
 
-  const progress = Math.min(100, Math.round((donation.raised / donation.goal) * 100));
-  const totalDonors = donation.donors.length;
+  const progress = snapshot.campaign.goalAmountInr > 0
+    ? Math.min(100, Math.round((snapshot.campaign.raisedAmountInr / snapshot.campaign.goalAmountInr) * 100))
+    : 0;
+  const totalDonors = snapshot.donors.length;
 
   return (
     <div className="w-full pb-24">
@@ -80,9 +108,9 @@ export function SevaDonationDetail() {
             <div className="mt-6">
               <div className="mb-3 flex items-end justify-between gap-4">
                 <div>
-                  <p className="text-3xl font-extrabold tracking-tight text-primary">{formatCompactINR(donation.raised)}</p>
+                  <p className="text-3xl font-extrabold tracking-tight text-primary">{formatCompactINR(snapshot.campaign.raisedAmountInr)}</p>
                   <p className="mt-1 text-sm font-medium text-muted-foreground">
-                    raised of {formatCompactINR(donation.goal)} goal
+                    raised of {formatCompactINR(snapshot.campaign.goalAmountInr)} goal
                   </p>
                 </div>
                 <span className="text-lg font-bold text-primary">{progress}%</span>
@@ -92,14 +120,18 @@ export function SevaDonationDetail() {
               </div>
             </div>
 
-            <Button className="mt-8 h-14 w-full rounded-xl bg-primary text-lg font-bold text-white hover:bg-primary/90">
-              Donate Now
-              <Heart className="ml-2 h-5 w-5" />
-            </Button>
-
-            <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
-              Donation checkout will be connected when this appeal is made live.
-            </p>
+            <RazorpayDonationButton
+              campaignId={apiCampaign?.id ?? null}
+              campaignTitle={donation.title}
+              user={user}
+              disabled={!apiCampaign}
+              onDonationComplete={() => void refreshDonationSnapshot()}
+            />
+            {!apiCampaign && (
+              <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
+                Online donations are being connected for this campaign.
+              </p>
+            )}
           </div>
 
         </div>
@@ -148,9 +180,9 @@ export function SevaDonationDetail() {
               className="composer-scrollbar max-h-[38rem] overflow-y-auto rounded-3xl border border-border/70 bg-background"
             >
               <div className="divide-y divide-border/70">
-                {donation.donors.map((donor, index) => (
+                {snapshot.donors.map((donor, index) => (
                   <div
-                    key={donor.name}
+                    key={`${donor.id}-${donor.name}`}
                     className={`flex items-center justify-between gap-3 px-3 py-4 ${
                       index < 3 ? "donor-shine-row" : ""
                     }`}
