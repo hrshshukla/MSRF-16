@@ -93,7 +93,6 @@ function CampaignDetailContent({
             <ArrowLeft size={16} className="mr-2" /> Back to all campaigns
           </Link>
           <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-wider text-primary mb-4">
-            <span className="px-2.5 py-1 bg-primary/10 rounded-md">{campaign.category}</span>
             <span className={`px-2.5 py-1 rounded-md ${campaign.status === 'active' ? 'bg-green-500/10 text-green-600' : 'bg-muted text-muted-foreground'}`}>
               {campaign.status}
             </span>

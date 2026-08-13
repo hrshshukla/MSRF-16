@@ -1,5 +1,9 @@
+import { config } from "dotenv";
 import { createServer } from "node:http";
 import { handleApiRequest } from "./api-handler";
+
+// Load environment variables from .env when running locally
+config();
 
 const port = Number(process.env.API_PORT ?? 5001);
 
