@@ -94,9 +94,6 @@ export function ProjectDetail() {
               <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
               Completed
             </span>
-            <span className="rounded-md bg-muted px-2.5 py-1 text-muted-foreground">
-              {project.category}
-            </span>
           </div>
           <h1 className="mt-5 max-w-4xl font-serif text-4xl font-bold md:text-6xl">
             {project.title}

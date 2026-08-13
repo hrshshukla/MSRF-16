@@ -134,11 +134,6 @@ function CampaignDetailContent({
           <Link href="/seva#campaigns" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground mb-6">
             <ArrowLeft size={16} className="mr-2" /> Back to all campaigns
           </Link>
-          <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-wider text-primary mb-4">
-            <span className={`px-2.5 py-1 rounded-md ${campaign.status === 'active' ? 'bg-green-500/10 text-green-600' : 'bg-muted text-muted-foreground'}`}>
-              {campaign.status}
-            </span>
-          </div>
           <h1 className="font-serif text-4xl md:text-5xl font-bold mb-6 max-w-4xl">{campaign.title}</h1>
         </div>
       </div>
