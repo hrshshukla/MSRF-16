@@ -1,5 +1,5 @@
 import { useGetCampaign, type Campaign } from "@/lib/api-client";
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 import { Link, Redirect, useParams } from "wouter";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
 } from "@/components/campaigns/razorpay-donation-button";
 import { useAuth } from "@/lib/auth-context";
 import { UserAvatar } from "@/components/user-avatar";
+import { useToast } from "@/hooks/use-toast";
 
 export function CampaignDetail() {
   const params = useParams();
@@ -58,6 +59,8 @@ function CampaignDetailContent({
 }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [isSharing, setIsSharing] = useState(false);
   const fallbackSnapshot: DonationSnapshot = {
     campaign: {
       id: campaign.id,
@@ -84,6 +87,44 @@ function CampaignDetailContent({
   };
 
   const totalDonors = snapshot.donors.length;
+
+  const handleShare = async () => {
+    const shareUrl = window.location.href;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: campaign.title,
+          text: `Support ${campaign.title}`,
+          url: shareUrl,
+        });
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+      }
+    }
+
+    try {
+      setIsSharing(true);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        toast({
+          title: "Campaign link copied",
+          description: "Share it with your friends and family.",
+        });
+      } else {
+        window.prompt("Copy this campaign link", shareUrl);
+      }
+    } catch {
+      toast({
+        title: "Unable to share campaign",
+        description: `Copy this link: ${shareUrl}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSharing(false);
+    }
+  };
 
   return (
     <div className="w-full pb-24">
@@ -125,7 +166,7 @@ function CampaignDetailContent({
               <div className="flex justify-between items-end mb-3">
                 <div>
                    <p className="text-3xl font-bold text-foreground">{formatINR(snapshot.campaign.raisedAmountInr)}</p>
-                   <p className="text-sm text-muted-foreground font-medium mt-1">raised of {formatINR(snapshot.campaign.goalAmountInr)} goal</p>
+                   <p className="whitespace-nowrap text-sm text-muted-foreground font-medium mt-1">raised of {formatINR(snapshot.campaign.goalAmountInr)} goal</p>
                 </div>
                 <span className="text-lg font-bold text-primary">{progress}%</span>
               </div>
@@ -140,8 +181,8 @@ function CampaignDetailContent({
                  className="w-full h-14 rounded-xl text-lg font-bold bg-primary hover:bg-primary/90 text-white shadow-md shadow-primary/20"
                   onDonationComplete={refreshCampaignData}
                />
-              <Button size="lg" variant="outline" className="w-full h-14 rounded-xl font-medium gap-2">
-                <Share2 size={18} /> Share Campaign
+              <Button size="lg" variant="outline" onClick={handleShare} disabled={isSharing} className="w-full h-14 rounded-xl font-medium gap-2">
+                 <Share2 size={18} /> {isSharing ? "Preparing link…" : "Share Campaign"}
               </Button>
             </div>
             
@@ -164,7 +205,7 @@ function CampaignDetailContent({
               )}
             </div>
 
-            <div className="rounded-3xl border bg-card p-6 shadow-sm md:p-8">
+            <section className="mt-8 border-t pt-6">
               <div className="mb-5 flex items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2">
@@ -193,17 +234,17 @@ function CampaignDetailContent({
                             className="h-8 w-8 border border-background shadow-sm"
                             fallbackClassName="bg-primary text-[10px] font-extrabold text-primary-foreground"
                           />
-                          <span className="min-w-0 truncate text-sm font-semibold">{donor.name}</span>
-                        </div>
-                        <span className="shrink-0 text-sm font-extrabold text-primary">{formatCompactINR(donor.amount)}</span>
+                           <span className="min-w-0 truncate text-sm font-semibold">{donor.name}</span>
+                         </div>
+                         <span className="shrink-0 text-sm font-extrabold text-primary">{formatCompactINR(donor.amount)}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <p className="px-4 py-8 text-center text-sm text-muted-foreground">Be the first donor to support this campaign.</p>
                 )}
-              </div>
-            </div>
+               </div>
+            </section>
           </div>
         </div>
       </div>

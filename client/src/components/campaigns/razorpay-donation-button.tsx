@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { createPortal } from "react-dom";
 import { CheckCircle2, Heart, LoaderCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -244,65 +245,67 @@ export function RazorpayDonationButton({
         <Heart className="ml-2 h-5 w-5" />
       </Button>
 
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 px-0 py-0 sm:items-center sm:px-4 sm:py-6"
-          role="presentation"
-          onMouseDown={(event) => event.target === event.currentTarget && close()}
-        >
+      {isOpen &&
+        createPortal(
           <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="donation-dialog-title"
-            className="max-h-[100dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-card p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl sm:rounded-3xl sm:p-6 md:p-8"
+            className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/60 px-0 py-0 sm:items-center sm:px-4 sm:py-6"
+            role="presentation"
+            onMouseDown={(event) => event.target === event.currentTarget && close()}
           >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Secure donation</p>
-                <h2 id="donation-dialog-title" className="mt-2 font-serif text-2xl font-bold">Support {campaignTitle}</h2>
-              </div>
-              <Button type="button" variant="ghost" size="icon" onClick={close} disabled={isSubmitting} aria-label="Close donation dialog">
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-
-            {success ? (
-              <div className="py-10 text-center">
-                <CheckCircle2 className="mx-auto h-14 w-14 text-emerald-600" />
-                <h3 className="mt-5 font-serif text-2xl font-bold">Thank you for your donation</h3>
-                <p className="mt-2 text-muted-foreground">Your contribution of {formatINR(Number(amount))} has been added to this campaign.</p>
-                <Button type="button" className="mt-7 rounded-full px-8" onClick={() => setIsOpen(false)}>Done</Button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="mt-7 space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="donor-name">Your name</Label>
-                  <Input id="donor-name" value={name} onChange={(event) => setName(event.target.value)} maxLength={120} autoComplete="name" required />
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="donation-dialog-title"
+              className="max-h-[100dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-card p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl sm:rounded-3xl sm:p-6 md:p-8"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Secure donation</p>
+                  <h2 id="donation-dialog-title" className="mt-2 font-serif text-2xl font-bold">Support {campaignTitle}</h2>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="donor-email">Email <span className="font-normal text-muted-foreground">(optional)</span></Label>
-                  <Input id="donor-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} maxLength={240} autoComplete="email" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="donor-phone">Phone number <span className="font-normal text-muted-foreground">(optional)</span></Label>
-                  <Input id="donor-phone" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} maxLength={30} autoComplete="tel" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="donation-amount">Donation amount (INR)</Label>
-                  <Input id="donation-amount" type="number" inputMode="numeric" min="1" step="1" value={amount} onChange={(event) => setAmount(event.target.value)} required autoFocus />
-                  <p className="text-xs text-muted-foreground">You can donate any whole amount.</p>
-                </div>
-                {error && <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
-                <Button type="submit" disabled={isSubmitting} className="h-12 w-full rounded-xl text-base font-bold">
-                  {isSubmitting ? <LoaderCircle className="mr-2 h-5 w-5 animate-spin" /> : null}
-                  {isSubmitting ? "Opening secure checkout…" : `Continue with ${formatINR(Number(amount) || 0)}`}
+                <Button type="button" variant="ghost" size="icon" onClick={close} disabled={isSubmitting} aria-label="Close donation dialog">
+                  <X className="h-5 w-5" />
                 </Button>
-                <p className="text-center text-xs text-muted-foreground">Payments are securely processed by Razorpay.</p>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
+              </div>
+
+              {success ? (
+                <div className="py-10 text-center">
+                  <CheckCircle2 className="mx-auto h-14 w-14 text-emerald-600" />
+                  <h3 className="mt-5 font-serif text-2xl font-bold">Thank you for your donation</h3>
+                  <p className="mt-2 text-muted-foreground">Your contribution of {formatINR(Number(amount))} has been added to this campaign.</p>
+                  <Button type="button" className="mt-7 rounded-full px-8" onClick={() => setIsOpen(false)}>Done</Button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="mt-7 space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="donor-name">Your name</Label>
+                    <Input id="donor-name" value={name} onChange={(event) => setName(event.target.value)} maxLength={120} autoComplete="name" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="donor-email">Email <span className="font-normal text-muted-foreground">(optional)</span></Label>
+                    <Input id="donor-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} maxLength={240} autoComplete="email" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="donor-phone">Phone number <span className="font-normal text-muted-foreground">(optional)</span></Label>
+                    <Input id="donor-phone" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} maxLength={30} autoComplete="tel" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="donation-amount">Donation amount (INR)</Label>
+                    <Input id="donation-amount" type="number" inputMode="numeric" min="1" step="1" value={amount} onChange={(event) => setAmount(event.target.value)} required autoFocus />
+                    <p className="text-xs text-muted-foreground">You can donate any whole amount.</p>
+                  </div>
+                  {error && <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
+                  <Button type="submit" disabled={isSubmitting} className="h-12 w-full rounded-xl text-base font-bold">
+                    {isSubmitting ? <LoaderCircle className="mr-2 h-5 w-5 animate-spin" /> : null}
+                    {isSubmitting ? "Opening secure checkout…" : `Continue with ${formatINR(Number(amount) || 0)}`}
+                  </Button>
+                  <p className="text-center text-xs text-muted-foreground">Payments are securely processed by Razorpay.</p>
+                </form>
+              )}
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }
