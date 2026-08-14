@@ -2,6 +2,8 @@ import { ArrowRight, Heart, Trophy } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/user-avatar";
+import { RazorpayDonationButton } from "@/components/campaigns/razorpay-donation-button";
+import { useAuth } from "@/lib/auth-context";
 
 export type CampaignCardDonor = {
   name: string;
@@ -9,7 +11,8 @@ export type CampaignCardDonor = {
   amount: number;
 };
 
-export type CampaignCardStatus = "active" | "ongoing" | "paused" | "upcoming" | "completed" | "stopped";
+export type CampaignCardStatus =
+  "active" | "ongoing" | "paused" | "upcoming" | "completed" | "stopped";
 
 export type CampaignDonationCardData = {
   id: string | number;
@@ -81,10 +84,16 @@ function campaignStatusStyles(status: CampaignCardStatus = "ongoing") {
   };
 }
 
-export function CampaignDonationCard({ campaign }: { campaign: CampaignDonationCardData }) {
-  const progress = campaign.goal > 0
-    ? Math.min(100, Math.round((campaign.raised / campaign.goal) * 100))
-    : 0;
+export function CampaignDonationCard({
+  campaign,
+}: {
+  campaign: CampaignDonationCardData;
+}) {
+  const { user } = useAuth();
+  const progress =
+    campaign.goal > 0
+      ? Math.min(100, Math.round((campaign.raised / campaign.goal) * 100))
+      : 0;
   const topDonors = campaign.donors.slice(0, 3);
   const status = campaignStatusStyles(campaign.status);
 
@@ -104,45 +113,68 @@ export function CampaignDonationCard({ campaign }: { campaign: CampaignDonationC
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
-        <div className={`absolute bottom-4 left-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] shadow-sm backdrop-blur-sm ${status.className}`}>
-          <span className={`h-2 w-2 rounded-full animate-pulse ${status.dotClassName}`} aria-hidden="true" />
+        <div
+          className={`absolute bottom-4 left-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] shadow-sm backdrop-blur-sm ${status.className}`}
+        >
+          <span
+            className={`h-2 w-2 rounded-full animate-pulse ${status.dotClassName}`}
+            aria-hidden="true"
+          />
           {status.label}
         </div>
       </div>
 
       <div className="flex flex-1 flex-col p-6">
         <h3 className="font-serif text-2xl font-bold">{campaign.title}</h3>
-        <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">{campaign.description}</p>
+        <p className="mt-3 line-clamp-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+          {campaign.description}
+        </p>
 
         <div className="mt-6">
           <div className="mb-2 flex items-end justify-between gap-3">
             <div>
-              <p className="text-xl font-extrabold tracking-tight text-primary">{formatCompactINR(campaign.raised)}</p>
-              <p className="text-xs font-medium text-muted-foreground">raised of {formatCompactINR(campaign.goal)}</p>
+              <p className="text-xl font-extrabold tracking-tight text-primary">
+                {formatCompactINR(campaign.raised)}
+              </p>
+              <p className="text-xs font-medium text-muted-foreground">
+                raised of {formatCompactINR(campaign.goal)}
+              </p>
             </div>
-            <span className="text-sm font-bold text-muted-foreground">{progress}%</span>
+            <span className="text-sm font-bold text-muted-foreground">
+              {progress}%
+            </span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+            <div
+              className="h-full rounded-full bg-primary transition-all"
+              style={{ width: `${progress}%` }}
+            />
           </div>
         </div>
 
-        <Link href={campaign.donateHref} className="mt-6 cursor-pointer">
-          <Button className="w-full rounded-full bg-primary text-white hover:bg-primary/90">
-            Donate Now
-            <Heart className="ml-2 h-4 w-4" />
-          </Button>
-        </Link>
+        <div className="mt-6">
+          <RazorpayDonationButton
+            campaignId={Number(campaign.id)}
+            campaignTitle={campaign.title}
+            user={user}
+            className="w-full rounded-full bg-primary text-white hover:bg-primary/90"
+          />
+        </div>
 
         <div className="mt-6 border-t pt-5">
           <div className="mb-3 flex items-center gap-2">
             <Trophy className="h-4 w-4 text-secondary" />
-            <p className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Top donors</p>
+            <p className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">
+              Top donors
+            </p>
           </div>
           {topDonors.length > 0 ? (
             <div className="space-y-2">
               {topDonors.map((donor) => (
-                <div key={donor.name} className="flex items-center justify-between gap-3 text-sm">
+                <div
+                  key={donor.name}
+                  className="flex items-center justify-between gap-3 text-sm"
+                >
                   <div className="flex min-w-0 items-center gap-2.5">
                     <UserAvatar
                       name={donor.name}
@@ -152,12 +184,16 @@ export function CampaignDonationCard({ campaign }: { campaign: CampaignDonationC
                     />
                     <span className="truncate font-medium">{donor.name}</span>
                   </div>
-                  <span className="shrink-0 font-bold text-primary">{formatCompactINR(donor.amount)}</span>
+                  <span className="shrink-0 font-bold text-primary">
+                    {formatCompactINR(donor.amount)}
+                  </span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Be the first donor to support this seva.</p>
+            <p className="text-sm text-muted-foreground">
+              Be the first donor to support this seva.
+            </p>
           )}
         </div>
 
