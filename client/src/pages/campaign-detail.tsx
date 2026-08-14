@@ -129,7 +129,7 @@ function CampaignDetailContent({
 
   return (
     <div className="w-full pb-24">
-      <div className="bg-muted py-8 border-b">
+      <div className="bg-muted pt-8 pb-2 border-b">
         <div className="container mx-auto px-4 md:px-8">
           <Link href="/seva#campaigns" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground mb-6">
             <ArrowLeft size={16} className="mr-2" /> Back to all campaigns
